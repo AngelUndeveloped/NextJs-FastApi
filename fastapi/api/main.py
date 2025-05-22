@@ -23,9 +23,27 @@ app.add_middleware(
 # Health check endpoint to verify the API is running
 @app.get("/")
 def health_check():
+    """
+    Health check endpoint to verify the API is running.
+    
+    Returns:
+        dict: A dictionary containing the status of the API
+            {
+                "status": "ok"  # Indicates the API is running properly
+            }
+    """
     return {"status": "ok"}
 
 # Example endpoint that returns a greeting message
 @app.get("/hello")
 def hello():
+    """
+    Example endpoint that returns a greeting message.
+    
+    Returns:
+        dict: A dictionary containing a greeting message
+            {
+                "message": "Hello, World!"  # The greeting message
+            }
+    """
     return {"message": "Hello, World!"}

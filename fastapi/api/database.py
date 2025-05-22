@@ -25,3 +25,27 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Create a base class for declarative models
 # All database models will inherit from this Base class
 Base = declarative_base()
+
+def get_db():
+    """
+    Dependency function to get a database session.
+    
+    This function creates a new database session and ensures it is properly closed
+    after use, even if an error occurs.
+    
+    Yields:
+        Session: A SQLAlchemy database session
+        
+    Example:
+        ```python
+        @app.get("/items")
+        def read_items(db: Session = Depends(get_db)):
+            items = db.query(Item).all()
+            return items
+        ```
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
