@@ -17,8 +17,9 @@ Version: 1.0.0
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from .database import Base, engine
-from .routers import auth
+from .routers import auth, workouts
 from . import models  # Import models to ensure they are registered with Base
 
 # Initialize FastAPI application with metadata
@@ -47,12 +48,6 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization"],
 )
 
-# Include routers
-# Authentication router handles user registration, login, and JWT token management
-app.include_router(auth.router)
-
-# API Routes
-# ==========
 
 @app.get("/", tags=["Health Check"])
 def health_check():
@@ -123,3 +118,7 @@ def api_info():
         }
     }
 
+# Include routers
+# Authentication router handles user registration, login, and JWT token management
+app.include_router(auth.router)
+app.include_router(workouts.router)
