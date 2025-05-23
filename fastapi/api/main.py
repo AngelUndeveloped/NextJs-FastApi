@@ -18,8 +18,9 @@ Version: 1.0.0
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+
 from .database import Base, engine
-from .routers import auth, workouts
+from .routers import auth, workouts, routines
 from . import models  # Import models to ensure they are registered with Base
 
 # Initialize FastAPI application with metadata
@@ -122,3 +123,4 @@ def api_info():
 # Authentication router handles user registration, login, and JWT token management
 app.include_router(auth.router)
 app.include_router(workouts.router)
+app.include_router(routines.router)
