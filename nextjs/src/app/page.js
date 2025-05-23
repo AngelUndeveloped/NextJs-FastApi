@@ -16,14 +16,20 @@ const Home = () => {
   const [selectedWorkouts, setSelectedWorkouts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [token, setToken] = useState(null);
 
-  const token = localStorage.getItem("token");
+  // Check if we're on the client side and get token
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem("token");
+      setToken(storedToken);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchWorkoutsAndRoutines = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
         const [workoutsResponse, routinesResponse] = await Promise.all([
           axios.get("http://localhost:8000/workouts/all", {
             headers: { Authorization: `Bearer ${token}` }
@@ -147,144 +153,173 @@ const Home = () => {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="bg-white shadow rounded-lg p-6 mb-8">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  Welcome, {user?.username}!
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        {/* Header with gradient */}
+        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-6">
+              <div className="text-white">
+                <h1 className="text-3xl font-bold">
+                  Welcome back, {user?.username}! 👋
                 </h1>
-                <p className="text-gray-600 mt-2">
-                  Manage your workouts and routines
+                <p className="text-blue-100 mt-1">
+                  Ready to crush your fitness goals today?
                 </p>
               </div>
               <button
                 onClick={logout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors"
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 shadow-lg"
               >
-                Logout
+                ← Logout
               </button>
             </div>
           </div>
+        </div>
 
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-              {error}
+            <div className="bg-red-50 border-l-4 border-red-400 text-red-700 px-6 py-4 rounded-r-lg mb-8 shadow-sm">
+              <div className="flex items-center">
+                <span className="text-red-400 mr-3">⚠️</span>
+                {error}
+              </div>
             </div>
           )}
 
           {/* Loading Indicator */}
           {loading && (
-            <div className="text-center py-4">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="mt-2 text-gray-600">Loading...</p>
+            <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
+              <div className="bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
+                <p className="text-gray-700 font-medium">Processing...</p>
+              </div>
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             {/* Workouts Section */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Workouts</h2>
-              
-              {/* Create Workout Form */}
-              <form onSubmit={handleCreateWorkout} className="mb-6">
-                <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Create Workout Card */}
+              <div className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl p-8 border border-white/20">
+                <div className="flex items-center mb-6">
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl mr-4">
+                    <span className="text-white text-xl">💪</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800">Create Workout</h2>
+                </div>
+                
+                <form onSubmit={handleCreateWorkout} className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Workout Name *
                     </label>
                     <input
                       type="text"
                       value={workoutName}
                       onChange={(e) => setWorkoutName(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter workout name"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-white/50"
+                      placeholder="e.g., Morning Cardio"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Description
                     </label>
                     <textarea
                       value={workoutDescription}
                       onChange={(e) => setWorkoutDescription(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter workout description"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 bg-white/50 resize-none"
+                      placeholder="Describe your workout routine..."
                       rows="3"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white py-2 px-4 rounded-md transition-colors"
+                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
                   >
-                    {loading ? "Creating..." : "Create Workout"}
+                    {loading ? "Creating..." : "✨ Create Workout"}
                   </button>
-                </div>
-              </form>
+                </form>
+              </div>
 
               {/* Workouts List */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900">Your Workouts ({workouts.length})</h3>
+              <div className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl p-8 border border-white/20">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-gray-800">Your Workouts</h3>
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {workouts.length} total
+                  </span>
+                </div>
+                
                 {workouts.length === 0 ? (
-                  <p className="text-gray-500 italic">No workouts yet. Create your first workout above!</p>
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">🏃‍♂️</div>
+                    <p className="text-gray-500 text-lg">No workouts yet</p>
+                    <p className="text-gray-400 text-sm">Create your first workout above!</p>
+                  </div>
                 ) : (
-                  workouts.map(workout => (
-                    <div key={workout.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">{workout.name}</h4>
-                          {workout.description && (
-                            <p className="text-gray-600 text-sm mt-1">{workout.description}</p>
-                          )}
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {workouts.map(workout => (
+                      <div key={workout.id} className="group bg-gradient-to-r from-white to-blue-50 border-2 border-gray-100 rounded-xl p-5 hover:shadow-lg hover:border-blue-200 transition-all duration-300">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h4 className="font-bold text-gray-900 text-lg">{workout.name}</h4>
+                            {workout.description && (
+                              <p className="text-gray-600 mt-2 text-sm leading-relaxed">{workout.description}</p>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => handleDeleteWorkout(workout.id)}
+                            className="opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ml-3"
+                            title="Delete workout"
+                          >
+                            🗑️
+                          </button>
                         </div>
-                        <button
-                          onClick={() => handleDeleteWorkout(workout.id)}
-                          className="text-red-600 hover:text-red-800 ml-2"
-                          title="Delete workout"
-                        >
-                          🗑️
-                        </button>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
 
             {/* Routines Section */}
-            <div className="bg-white shadow rounded-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Routines</h2>
-              
-              {/* Create Routine Form */}
-              <form onSubmit={handleCreateRoutine} className="mb-6">
-                <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Create Routine Card */}
+              <div className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl p-8 border border-white/20">
+                <div className="flex items-center mb-6">
+                  <div className="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-xl mr-4">
+                    <span className="text-white text-xl">📋</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800">Create Routine</h2>
+                </div>
+                
+                <form onSubmit={handleCreateRoutine} className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Routine Name *
                     </label>
                     <input
                       type="text"
                       value={routineName}
                       onChange={(e) => setRoutineName(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter routine name"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-300 bg-white/50"
+                      placeholder="e.g., Weekly Training Plan"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Description
                     </label>
                     <textarea
                       value={routineDescription}
                       onChange={(e) => setRoutineDescription(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter routine description"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-300 bg-white/50 resize-none"
+                      placeholder="Describe your routine..."
                       rows="3"
                     />
                   </div>
@@ -292,19 +327,19 @@ const Home = () => {
                   {/* Workout Selection */}
                   {workouts.length > 0 && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Select Workouts for this Routine
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Select Workouts
                       </label>
-                      <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-md p-2">
+                      <div className="max-h-40 overflow-y-auto bg-gray-50 border-2 border-gray-200 rounded-xl p-4">
                         {workouts.map(workout => (
-                          <label key={workout.id} className="flex items-center space-x-2 py-1">
+                          <label key={workout.id} className="flex items-center space-x-3 py-2 hover:bg-white rounded-lg px-2 transition-colors cursor-pointer">
                             <input
                               type="checkbox"
                               checked={selectedWorkouts.includes(workout.id)}
                               onChange={() => handleWorkoutSelection(workout.id)}
-                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              className="w-5 h-5 rounded border-2 border-gray-300 text-green-600 focus:ring-green-500 focus:ring-2"
                             />
-                            <span className="text-sm text-gray-700">{workout.name}</span>
+                            <span className="text-gray-700 font-medium">{workout.name}</span>
                           </label>
                         ))}
                       </div>
@@ -314,71 +349,89 @@ const Home = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white py-2 px-4 rounded-md transition-colors"
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-300 disabled:to-gray-400 text-white py-4 px-6 rounded-xl font-semibold transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg"
                   >
-                    {loading ? "Creating..." : "Create Routine"}
+                    {loading ? "Creating..." : "🎯 Create Routine"}
                   </button>
-                </div>
-              </form>
+                </form>
+              </div>
 
               {/* Routines List */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900">Your Routines ({routines.length})</h3>
+              <div className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl p-8 border border-white/20">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-gray-800">Your Routines</h3>
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {routines.length} total
+                  </span>
+                </div>
+                
                 {routines.length === 0 ? (
-                  <p className="text-gray-500 italic">No routines yet. Create your first routine above!</p>
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">📅</div>
+                    <p className="text-gray-500 text-lg">No routines yet</p>
+                    <p className="text-gray-400 text-sm">Create your first routine above!</p>
+                  </div>
                 ) : (
-                  routines.map(routine => (
-                    <div key={routine.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">{routine.name}</h4>
-                          {routine.description && (
-                            <p className="text-gray-600 text-sm mt-1">{routine.description}</p>
-                          )}
-                          {routine.workouts && routine.workouts.length > 0 && (
-                            <div className="mt-2">
-                              <p className="text-xs text-gray-500 mb-1">Workouts in this routine:</p>
-                              <div className="flex flex-wrap gap-1">
-                                {routine.workouts.map(workout => (
-                                  <span 
-                                    key={workout.id}
-                                    className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
-                                  >
-                                    {workout.name}
-                                  </span>
-                                ))}
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {routines.map(routine => (
+                      <div key={routine.id} className="group bg-gradient-to-r from-white to-green-50 border-2 border-gray-100 rounded-xl p-5 hover:shadow-lg hover:border-green-200 transition-all duration-300">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h4 className="font-bold text-gray-900 text-lg">{routine.name}</h4>
+                            {routine.description && (
+                              <p className="text-gray-600 mt-2 text-sm leading-relaxed">{routine.description}</p>
+                            )}
+                            {routine.workouts && routine.workouts.length > 0 && (
+                              <div className="mt-3">
+                                <p className="text-xs text-gray-500 mb-2 font-medium">Included workouts:</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {routine.workouts.map(workout => (
+                                    <span 
+                                      key={workout.id}
+                                      className="inline-flex items-center bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium"
+                                    >
+                                      💪 {workout.name}
+                                    </span>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
+                          </div>
+                          <button
+                            onClick={() => handleDeleteRoutine(routine.id)}
+                            className="opacity-0 group-hover:opacity-100 bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg transition-all duration-300 transform hover:scale-110 ml-3"
+                            title="Delete routine"
+                          >
+                            🗑️
+                          </button>
                         </div>
-                        <button
-                          onClick={() => handleDeleteRoutine(routine.id)}
-                          className="text-red-600 hover:text-red-800 ml-2"
-                          title="Delete routine"
-                        >
-                          🗑️
-                        </button>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
           </div>
 
           {/* API Information */}
-          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="font-semibold text-blue-900 mb-2">API Information</h3>
-            <p className="text-blue-700 text-sm">
-              This app connects to the FastAPI backend running on localhost:8000. 
-              Check the API documentation at{" "}
+          <div className="mt-12 bg-gradient-to-r from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-2xl p-8 shadow-lg">
+            <div className="flex items-center mb-4">
+              <div className="bg-indigo-500 p-2 rounded-lg mr-3">
+                <span className="text-white">🔗</span>
+              </div>
+              <h3 className="font-bold text-indigo-900 text-lg">API Connection</h3>
+            </div>
+            <p className="text-indigo-700 leading-relaxed">
+              Connected to FastAPI backend on{" "}
+              <code className="bg-indigo-100 px-2 py-1 rounded font-mono text-sm">localhost:8000</code>
+              {" "}• View API docs:{" "}
               <a 
                 href="http://localhost:8000/docs" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="underline hover:text-blue-900"
+                className="inline-flex items-center text-indigo-600 hover:text-indigo-800 font-medium underline transition-colors"
               >
-                http://localhost:8000/docs
+                Interactive Documentation 🚀
               </a>
             </p>
           </div>
